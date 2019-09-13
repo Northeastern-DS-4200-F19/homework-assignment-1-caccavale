@@ -1,0 +1,24 @@
+body {
+    font-family: 'Oxygen', sans-serif;
+}
+
+body div {
+    position:absolute;
+}
+
+canvas {
+    position:absolute; left: 0px; top:0px;
+}
+
+.bar-chart {
+    position:absolute; left: 0px; top:0px; z-index: 2;
+}
+.bar-chart rect {
+    -webkit-backdrop-filter: invert(100%);
+    backdrop-filter: invert(100%);
+    transition: all 0.1s ease;
+}
+
+.bar-chart rect:hover {
+    fill: #c0ffee;
+}
