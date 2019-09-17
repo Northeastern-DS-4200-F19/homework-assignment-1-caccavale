@@ -26,3 +26,41 @@ var barChart = svg.selectAll("rect")
         var translate = [barWidth * i, 0]; 
         return "translate("+ translate +")";
     });
+
+let myheading = document.querySelector('h1');
+myheading.textContent = "Data science is sicko mode!"
+
+document.querySelector('img').onclick = function() {
+    alert('oof');
+}
+
+var canvas = document.querySelector("#scene");
+var ctx = canvas.getContext("2d");
+var HEIGHT = document.querySelector("#scene").height;
+var WIDTH = document.querySelector("#scene").width;
+var tickrate = 1000/60;
+var curobj;
+var persist = true;
+var next;
+var runloop;
+
+curobj = new rain();
+runloop = setTimeout(run, tickrate);
+
+window.addEventListener("resize", function() {
+    HEIGHT = document.querySelector("#scene").height;
+    WIDTH = document.querySelector("#scene").width;
+});
+
+// This is not a good way to do this but it makes sense from the code
+// I carved it from.  It had to change on clicks so individual timeouts
+// were required.
+function run() {
+    if (curobj.tick(persist)) {
+        runloop = setTimeout(run, tickrate);
+    } else {
+        persist = true;
+        newfocus(next);
+        runloop = setTimeout(run, tickrate);
+    }
+}

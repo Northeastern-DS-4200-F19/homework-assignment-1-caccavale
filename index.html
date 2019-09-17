@@ -6,20 +6,18 @@
         <link rel="stylesheet" href="./styles/style.css">
         <link href="https://fonts.googleapis.com/css?family=Oxygen&display=swap" rel="stylesheet">
 
-        <script src="./scripts/snow.js"></script>
         <script src="./scripts/rain.js"></script>
         
         <script>window.onload = snow;</script>
     </head>
     <body>
-        <h1>Data science is sicko mode! </h1>
+        <h1>Y javascript off?!</h1>
         <img src="./images/firefox-icon.png" alt="My test image">
     
         <p>
             I was trying to get this to work in class -- if the bar chart represented precipitation levels you could show it this way.
             I was trying to get the bars to invert the color on the canvas behind them.  It would probably be busy but it might look cool.
-            The rain/snow is something I stole from my <a href="https://github.com/mattrberry/javascript-snow-rain">roommate's github</a> real quick.
-            (His was based on <a href="http://caccavale.github.io/">mine!</a>)
+            The rain/snow is something I made in the past and hosted on <a href="caccavale.github.io">my website</a>.
             I couldn't get the `backdrop-filter: invert(100%);` style to invert the canvas but I believe its a limitation of CSS/canvas interactions.
         </p>
         <h3>I won't stop trying though!</h3>
@@ -29,10 +27,12 @@
         </p>
         <p>
             PPS I'm super excited for this class.  I'm a super visually focused, computer science major and this is my first data science class.
+            I've done a little work with <a href="https://caccavale.github.io/snowplow-syracuse/">weird JS stuff (snowplow routes)</a> and some
+            <a href="https://caccavale.github.io/kcolor/">wasm stuff!</a>
         </p>
         <div>
             <svg class="bar-chart"></svg>
-            <canvas id="snowrain" height="240" width="500"></canvas>
+            <canvas id="scene" height="240" width="500"></canvas>
         </div>
 
         <script src="https://d3js.org/d3.v4.min.js"></script>

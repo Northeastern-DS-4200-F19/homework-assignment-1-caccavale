@@ -1,126 +1,155 @@
-var rain = function() {
-    var c = document.getElementById("snowrain");
-    var ctx = c.getContext("2d");
+class droplet {
+    constructor(wind, grav) {
+        this.wind = wind;
+        this.grav = grav;
 
-    var width = c.width;
-    var height = c.height;
+        this.x = Math.random() * WIDTH;
+        this.y = -10;
 
-    var raindrops = [];
-    var pool = -10;
-
-    var chanceOfRain = 0.0005;
-
-    var wind = 0.001;
-    
-    var gravity = 0.1;
-
-    var waveLength = 100;
-
-    var tick = 0;
-    
-    function Rain (x) {
-	this.x = x;
-	this.y = 0;
-	this.oldX = this.x;
-	this.oldY = this.y;
-	this.dx = wind;
-	this.dy = 5;
-	this.updateRain = function() {
-	    this.oldX = this.x;
-	    this.oldY = this.y;
-	    this.x += this.dx;
-	    this.y += this.dy;
-	    this.dx += this.dy * wind;
-	    this.dy += gravity;
-	}
-    }
-	    
-    function draw() {
-	if (!screenFilled()) {
-	    requestAnimationFrame(draw);
-	} else {
-	    console.log("Rain took " + ((new Date().getTime() - startTime) / 1000) + " to fill the screen.");
-	    snow();
-	}
-
-	drawBackground();
-
-	updateRain();
-	spawnRain();
-	removeRain();
-	drawRain();
-
-	drawPool();
-
-	tick++;
+        this.dx = this.wind / 2;
+        this.dy = 5;
     }
 
-    function drawRain() {
-	for (var i = 0; i < raindrops.length; i++) {
-	    ctx.beginPath();
-	    ctx.moveTo(raindrops[i].oldX, raindrops[i].oldY);
-	    ctx.lineTo(raindrops[i].x, raindrops[i].y);
-	    ctx.lineWidth = 4;
-	    ctx.strokeStyle = "#4957B8";
+    physics() {
+        this.lastx = this.x;
+        this.lasty = this.y;
 
-	    ctx.stroke();
-	}
+        this.dx = this.dx + this.wind;
+        this.dy = this.dy + this.grav;
+
+        this.x = this.x + this.dx;
+        this.y = this.y + this.dy;
+
+        if (WIDTH < this.x) {
+            this.x = this.x - WIDTH;
+            this.lastx = this.lastx - WIDTH;
+        } else if (this.x < 0) {
+            this.x = this.x + WIDTH;
+            this.lastx = this.lastx + WIDTH;
+        }
+
+        if (HEIGHT < this.lasty) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
-    function drawBackground() {
-	ctx.fillStyle = "#fff";
-	ctx.fillRect(0, 0, width, height);
+    draw() {
+        ctx.beginPath();
+        ctx.moveTo(this.lastx, this.lasty);
+        ctx.lineTo(this.x, this.y);
+        ctx.stroke();
+    }
+}
+
+class splash {
+    constructor(x, y, grav) {
+        this.x = x;
+        this.y = y;
+        this.grav = grav;
+
+        var dir = Math.random() * 180;
+
+        this.dx = Math.cos(dir) * (2 + Math.random() * 3);
+        this.dy = -1 * Math.sin(dir) * (2 + Math.random() * 3);
     }
 
-    function spawnRain() {
-	for (var i = 0; i <= width; i++) {
-	    if (Math.random() < chanceOfRain) {
-		raindrops.push(new Rain(i));
-	    }
-	}
+    physics() {
+        this.lastx = this.x;
+        this.lasty = this.y;
+
+        this.dy = this.dy + this.grav;
+
+        this.x = this.x + this.dx;
+        this.y = this.y + this.dy;
+
+        if (WIDTH < this.x) {
+            this.x = this.x - WIDTH;
+            this.lastx = this.lastx - WIDTH;
+        } else if (this.x < 0) {
+            this.x = this.x + WIDTH;
+            this.lastx = this.lastx + WIDTH;
+        }
+
+        if (HEIGHT < this.lasty) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
-    function updateRain() {
-	for (var i = 0; i < raindrops.length; i++) {
-	    raindrops[i].updateRain();
-	}
+    draw() {
+        ctx.beginPath();
+        ctx.moveTo(this.lastx, this.lasty);
+        ctx.lineTo(this.x, this.y);
+        ctx.stroke();
+    }
+}
+
+class rain {
+    constructor() {
+        ctx.strokeStyle = "#0070DE";
+
+        this.wind = .03;
+        this.grav = .2;
+        this.rainchance = 1;
+        this.droplets = [];
+        this.splashes = [];
     }
 
-    function removeRain() {
-	for (var i = raindrops.length - 1; i >= 0; i--) {
-	    if (raindrops[i].y > height - pool) {
-		pool += .01 * 10;
-		raindrops.splice(i, 1);
-	    }
-	}
+    physics(persist) {
+        if (persist) {
+            if (Math.random() < this.rainchance) {
+                this.droplets.push(new droplet(this.wind, this.grav));
+            }
+        }
+
+        var i = 0;
+        while (i < this.droplets.length) {
+            if (this.droplets[i].physics() === 1) {
+                for (var e = 0; e < 3 + ~~(Math.random() * 4); e++) {
+                    this.splashes.push(new splash(this.droplets[i].x, HEIGHT, this.grav));
+                }
+                this.droplets.splice(i, 1);
+            } else {
+                i = i + 1;
+            }
+        }
+
+        i = 0;
+        while (i < this.splashes.length) {
+            if (this.splashes[i].physics() === 1) {
+                this.splashes.splice(i, 1);
+            } else {
+                i = i + 1;
+            }
+        }
+
+        return persist || ((this.droplets.length + this.splashes.length) > 0);
     }
 
-    function drawPool() {
-	var x = -tick/50 % width;
-	var y = height - pool;
+    draw() {
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
 
-	ctx.beginPath();
-	ctx.moveTo(x,y);
-	for (var i = x; i <= width + waveLength; i += waveLength) {
-	    x = i;
-	    y = height - pool - Math.sin(x) * 8;
-	    ctx.lineTo(x, y);
-	}
-	ctx.lineTo(width+50, height + 50);
-	ctx.lineTo(-tick/5 % width, height + 50);
-	ctx.closePath();
+        ctx.lineWidth = 1.5;
+        var i = 0;
+        while (i < this.droplets.length) {
+            this.droplets[i].draw();
+            i = i + 1;
+        }
 
-	ctx.lineWidth = 5;
-	ctx.fillStyle = "#4957B8";
-	ctx.fill();
-	ctx.strokeStyle = "#4957B8";
-	ctx.stroke();
-    }
-    
-    function screenFilled() {
-	return (pool - 8 >= 240);
+        ctx.lineWidth = 1;
+        i = 0;
+        while (i < this.splashes.length) {
+            this.splashes[i].draw();
+            i = i + 1;
+        }
     }
 
-    var startTime = new Date().getTime();
-    draw();
+    tick(persist) {
+        var done = this.physics(persist);
+        this.draw();
+        return done;
+    }
 }
